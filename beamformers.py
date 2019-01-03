@@ -445,5 +445,6 @@ def BeamformIt(mixture, fs=8000, basedir='/Data/software/BeamformIt/', verbose=F
         print("Status: {}".format(p_status))
 
     _, s = wavfile.read('{}/output/temps/temps.wav'.format(basedir))
-
+    s = s.astype('float32')
+    s /= np.max(np.abs(s))
     return s
