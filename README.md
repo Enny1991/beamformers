@@ -1,5 +1,5 @@
-# BEAMFORMERS 
-[![Build Status](https://travis-ci.org/Enny1991/beamformers.svg?branch=master)](https://travis-ci.org/Enny1991/beamformers.svg?branch=master)
+# BEAMFORMERS [![Build Status](https://travis-ci.org/Enny1991/beamformers.svg?branch=master)](https://travis-ci.org/Enny1991/beamformers.svg?branch=master)
+
 This library implements some of the most well known beamformers for source separation and speech enhancement.
 The beamformers are easy to use and implemented in simplest way possible in case someone wants to understand 
 how to implemented them on their own. The idea of this library is to provide a simple way of applying beamforming for 
@@ -19,7 +19,7 @@ or
 ```bash
 git clone https://github.com/Enny1991/beamformers
 cd beamformers
-python setup.py
+python setup.py install
 ```
 
 ## Simple to use 

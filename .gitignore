@@ -2,3 +2,6 @@
 .idea/
 .ipynb_checkpoints/
 *.pyc
+/beamformers.egg-info/
+/build/
+/dist/
