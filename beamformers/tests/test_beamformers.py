@@ -100,15 +100,15 @@ class TestBeamformers(TestCase):
 
         np.testing.assert_equal(out_mwf, true_mwf)
 
-    def test_bfi(self):
-
-        out_bfi = BeamformIt(self.mix).astype('float64')
-
-        sf.write('wavs/tout.wav', out_bfi, 8000)
-
-        true_bfi, fs = sf.read('wavs/bfi.wav')
-        out_bfi, fs = sf.read('wavs/tout.wav')
-
-        np.testing.assert_equal(out_bfi, true_bfi)
+    # def test_bfi(self):
+    #
+    #     out_bfi = BeamformIt(self.mix).astype('float64')
+    #
+    #     sf.write('wavs/tout.wav', out_bfi, 8000)
+    #
+    #     true_bfi, fs = sf.read('wavs/bfi.wav')
+    #     out_bfi, fs = sf.read('wavs/tout.wav')
+    #
+    #     np.testing.assert_equal(out_bfi, true_bfi)
 
 
