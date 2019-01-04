@@ -1,4 +1,5 @@
-# BEAMFORMERS
+# BEAMFORMERS 
+[![Build Status](https://travis-ci.org/Enny1991/beamformers.svg?branch=master)](https://travis-ci.org/Enny1991/beamformers.svg?branch=master)
 This library implements some of the most well known beamformers for source separation and speech enhancement.
 The beamformers are easy to use and implemented in simplest way possible in case someone wants to understand 
 how to implemented them on their own. The idea of this library is to provide a simple way of applying beamforming for 
@@ -39,4 +40,21 @@ nn, _ = sf.read('../wavs/nn.wav')
 nn = nn.T
 
 out_mvdr = beamformers.MVDR(mix, nn)
+```
+
+## Extra
+There is the possibility to use BeamformIt but you will need to manually compile it.
+Follow the instructions in their [repo](https://github.com/xanguera/BeamformIt).
+Once installed you can use it in the following way 
+
+```python
+import soundfile as sf
+
+from beamformers import beamformers
+
+mix, _ = sf.read('../wavs/mix.wav')
+mix = mix.T
+
+basedir = '/some/path/BeamformIt'
+out_mvdr = beamformers.BeamformIt(mix, fs=8000, basedir=basedir)
 ```
