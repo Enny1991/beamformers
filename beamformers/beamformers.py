@@ -5,6 +5,7 @@ from scipy.signal import stft, istft
 import itertools
 import subprocess
 import os
+import soundfile as sf
 
 eps = 1e-15
 
@@ -134,7 +135,7 @@ def TD_MWF(mixture, interference, reference=None, frame_len=512, frame_step=1):
     rho_xX = rho_xX / n_win if rho_xX is not None else (rho_yY - rho_vV) / (var_y - var_v) / n_win
 
     # R_y - inv
-    part = np.linalg.inv(R_in / n_win + np.eye(M * frame_len) * 1e-15).dot(rho_xX)  # / np.linalg.norm(rho_xX)
+    part = np.linalg.inv(R_in / n_win + np.eye(M * frame_len) * 1e-15).dot(rho_xX)
     h_MWF = (part * var_x) / (1 + var_x * rho_xX.T.dot(part))
     h_MWF /= np.sqrt(np.sum(h_MWF ** 2))
 
@@ -435,7 +436,8 @@ def BeamformIt(mixture, fs=8000, basedir='/Data/software/BeamformIt/', verbose=F
 
     wavfile.write('/tmp/audios/rec.wav', fs, mixture.T)
 
-    p = subprocess.Popen("cd {}; bash do_beamforming.sh /tmp/audios/ temps".format(basedir), stdout=subprocess.PIPE, shell=True)
+    p = subprocess.Popen("cd {}; bash do_beamforming.sh /tmp/audios/ temps".format(basedir),
+                         stdout=subprocess.PIPE, shell=True)
     
     (output, err) = p.communicate()
     p_status = p.wait()
@@ -444,7 +446,6 @@ def BeamformIt(mixture, fs=8000, basedir='/Data/software/BeamformIt/', verbose=F
         print("Error: {}".format(err))
         print("Status: {}".format(p_status))
 
-    _, s = wavfile.read('{}/output/temps/temps.wav'.format(basedir))
-    s = s.astype('float32')
-    s /= np.max(np.abs(s))
+    s, _ = sf.read('{}/output/temps/temps.wav'.format(basedir))
+
     return s
