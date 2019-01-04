@@ -11,27 +11,27 @@ recordings of the target speech alone will help the estimate of the steering vec
 
 ## Install
 Simply
-```
+```bash
 pip install beamformers
 ```
 or 
-```
+```bash
 git clone https://github.com/Enny1991/beamformers
 cd beamformers
 python setup.py
 ```
 
 ## Simple to use 
-```
+```python
 import soundfile as sf
 from beamformers import beamformers
 
 # mix: ndarray (n_mics, time) with the noisy signal recording
 # nn: ndarray (n_mics, time) with the noise recording
 
-spk, _ = sf.read('../wavs/spk.wav')
+mix, _ = sf.read('../wavs/mix.wav')
 # soundfile loads the file is as (time, n_mics) so I need to transpose it
-spk = spk.T
+mix = mix.T
 
 # NOISE
 nn, _ = sf.read('../wavs/nn.wav')

@@ -150,7 +150,7 @@ def TD_MWF(mixture, interference, reference=None, frame_len=512, frame_step=1):
     return y_MWF
 
 
-def MVDR(mixture, interference, reference, frame_len=2048, frame_step=512):
+def MVDR(mixture, interference, reference=None, frame_len=2048, frame_step=512):
     """
     Frequency domain Minimum Variance Distortionless Response (MVDR) beamformer
     :param mixture:
