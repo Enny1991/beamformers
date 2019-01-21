@@ -1,13 +1,21 @@
 from __future__ import print_function
 import numpy as np
 from scipy.io import wavfile
-from scipy.signal import stft, istft
+from scipy.signal import stft as _stft, istft as _istft
 import itertools
 import subprocess
 import os
 import soundfile as sf
 
 eps = 1e-15
+
+
+def stft(x, frame_len=2048, frame_step=512):
+    return _stft(x, nperseg=frame_len, noverlap=(frame_len - frame_step))[-1]
+
+
+def istft(x, frame_len=2048, frame_step=512):
+    return _istft(x, noverlap=(frame_len - frame_step))[1]
 
 
 def TD_MVDR(mixture, interference, reference=None, frame_len=512, frame_step=1):
@@ -161,14 +169,14 @@ def MVDR(mixture, interference, reference=None, frame_len=2048, frame_step=512):
     :return:
     """
     # calculate stft
-    mixture_stft = stft(mixture, nperseg=frame_len, noverlap=(frame_len - frame_step))[-1]
+    mixture_stft = stft(mixture, frame_len=frame_len, frame_step=frame_step)
 
     # estimate steering vector for desired speaker (depending if reference is available)
     if reference is not None:
-        reference_stft = stft(reference, nperseg=frame_len, noverlap=(frame_len - frame_step))[-1]
+        reference_stft = stft(reference, frame_len=frame_len, frame_step=frame_step)
         h = estimate_steering_vector(reference_stft=reference_stft)
     else:
-        noise_spec = stft(interference, nperseg=frame_len, noverlap=(frame_len - frame_step))[-1]
+        noise_spec = stft(interference, frame_len=frame_len, frame_step=frame_step)
         h = estimate_steering_vector(mixture_stft=mixture_stft, interference_stft=noise_spec)
 
     # calculate weights
@@ -178,7 +186,7 @@ def MVDR(mixture, interference, reference=None, frame_len=2048, frame_step=512):
     sep_spec = apply_beamforming_weights(mixture_stft, w)
     
     # reconstruct wav
-    recon = istft(sep_spec, noverlap=(frame_len - frame_step))[1]
+    recon = istft(sep_spec, frame_len=frame_len, frame_step=frame_step)
     
     return recon
 
@@ -186,12 +194,12 @@ def MVDR(mixture, interference, reference=None, frame_len=2048, frame_step=512):
 def MSNR(mixture, interference, reference=None, frame_len=2048, frame_step=512):
 
     # calculate stft
-    mixture_stft = stft(mixture, nperseg=frame_len, noverlap=(frame_len - frame_step))[-1]
-    interference_stft = stft(interference, nperseg=frame_len, noverlap=(frame_len - frame_step))[-1]
+    mixture_stft = stft(mixture, frame_len=frame_len, frame_step=frame_step)
+    interference_stft = stft(interference, frame_len=frame_len, frame_step=frame_step)
 
     # estimate steering vector for desired speaker (depending if reference is available)
     if reference is not None:
-        reference_stft = stft(reference, nperseg=frame_len, noverlap=(frame_len - frame_step))[-1]
+        reference_stft = stft(reference, frame_len=frame_len, frame_step=frame_step)
         h = estimate_steering_vector(reference_stft=reference_stft)
     else:
         h = estimate_steering_vector(mixture_stft=mixture_stft, interference_stft=interference_stft)
@@ -203,7 +211,7 @@ def MSNR(mixture, interference, reference=None, frame_len=2048, frame_step=512):
     sep_spec = apply_beamforming_weights(mixture_stft, w)
 
     # reconstruct wav
-    reconstructed = istft(sep_spec, noverlap=(frame_len - frame_step))[1]
+    reconstructed = istft(sep_spec, frame_len=frame_len, frame_step=frame_step)
 
     return reconstructed
 
@@ -314,11 +322,11 @@ def sdw_mwf_weights(reference_mic, interference_stft, h, mu):
 
 def SDW_MWF(mixture, interference, reference=None, mu=0, frame_len=2048, frame_step=512):
     
-    mixture_stft = stft(mixture, nperseg=frame_len, noverlap=(frame_len - frame_step))[-1]
-    interference_stft = stft(interference, nperseg=frame_len, noverlap=(frame_len - frame_step))[-1]
+    mixture_stft = stft(mixture, frame_len=frame_len, frame_step=frame_step)
+    interference_stft = stft(interference, frame_len=frame_len, frame_step=frame_step)
 
     if reference is not None:
-        reference_stft = stft(reference, nperseg=frame_len, noverlap=(frame_len - frame_step))[-1]
+        reference_stft = stft(reference, frame_len=frame_len, frame_step=frame_step)
         # estimate forward mapping for desired speaker
         h = estimate_steering_vector(reference_stft=reference_stft)
     else:
@@ -332,7 +340,7 @@ def SDW_MWF(mixture, interference, reference=None, mu=0, frame_len=2048, frame_s
     sep_spec = apply_beamforming_weights(mixture_stft, w)
     
     # reconstruct wav
-    recon = istft(sep_spec, noverlap=(frame_len - frame_step))[1]
+    recon = istft(sep_spec, frame_len=frame_len, frame_step=frame_step)
 
     # recon = np.concatenate([recon, np.zeros((len(mixture[0]) - len(recon),))])
     
@@ -398,9 +406,9 @@ def MWF_Oracle(mixture, interference, reference, frame_len=2048, frame_step=512)
     N = mixture.shape[1]
 
     # compute stft
-    mixture_stft = stft(mixture, nperseg=frame_len, noverlap=(frame_len - frame_step))[-1]
-    interference_stft = stft(interference, nperseg=frame_len, noverlap=(frame_len - frame_step))[-1]
-    reference_stft = stft(reference, nperseg=frame_len, noverlap=(frame_len - frame_step))[-1]
+    mixture_stft = stft(mixture, frame_len=frame_len, frame_step=frame_step)
+    interference_stft = stft(interference, frame_len=frame_len, frame_step=frame_step)
+    reference_stft = stft(reference, frame_len=frame_len, frame_step=frame_step)
 
     # compute PSD for reference and interference
     P_reference, R_reference = compute_psd(reference_stft)
@@ -422,7 +430,7 @@ def MWF_Oracle(mixture, interference, reference, frame_len=2048, frame_step=512)
     filtered_stft = np.einsum('abdc,cab->dab', G, mixture_stft)
 
     # invert to time domain
-    reconstructed = istft(filtered_stft, noverlap=(frame_len - frame_step))[1][0, :N]
+    reconstructed = istft(filtered_stft, frame_len=frame_len, frame_step=frame_step)[0, :N]
         
     return reconstructed
 
