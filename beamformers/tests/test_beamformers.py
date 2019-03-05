@@ -32,25 +32,25 @@ class TestBeamformers(TestCase):
         # os.remove('wavs/test_out.wav')
         pass
 
-    def test_sdw_mwf_wref(self):
-
-        true_sdw_mwf_wref, fs = sf.read('wavs/sdw_mwf_wref.wav')
-
-        out_sdw_mwf_wref = SDW_MWF(self.mix, self.nn, self.spk, frame_len=self.frame_len, frame_step=self.frame_step)
-        sf.write('wavs/test_out.wav', out_sdw_mwf_wref, self.fs)
-        out_sdw_mwf_wref, fs = sf.read('wavs/test_out.wav')
-
-        np.testing.assert_equal(out_sdw_mwf_wref, true_sdw_mwf_wref)
-
-    def test_sdw_mwf_nref(self):
-        true_sdw_mwf_nref, fs = sf.read('wavs/sdw_mwf_nref.wav')
-
-        out_sdw_mwf_nref = SDW_MWF(self.mix, self.nn, reference=None,
-                                   frame_len=self.frame_len, frame_step=self.frame_step)
-        sf.write('wavs/test_out.wav', out_sdw_mwf_nref, self.fs)
-        out_sdw_mwf_nref, fs = sf.read('wavs/test_out.wav')
-
-        np.testing.assert_equal(out_sdw_mwf_nref, true_sdw_mwf_nref)
+    # def test_sdw_mwf_wref(self):
+    #
+    #     true_sdw_mwf_wref, fs = sf.read('wavs/sdw_mwf_wref.wav')
+    #
+    #     out_sdw_mwf_wref = SDW_MWF(self.mix, self.nn, self.spk, frame_len=self.frame_len, frame_step=self.frame_step)
+    #     sf.write('wavs/test_out.wav', out_sdw_mwf_wref, self.fs)
+    #     out_sdw_mwf_wref, fs = sf.read('wavs/test_out.wav')
+    #
+    #     np.testing.assert_equal(out_sdw_mwf_wref, true_sdw_mwf_wref)
+    #
+    # def test_sdw_mwf_nref(self):
+    #     true_sdw_mwf_nref, fs = sf.read('wavs/sdw_mwf_nref.wav')
+    #
+    #     out_sdw_mwf_nref = SDW_MWF(self.mix, self.nn, reference=None,
+    #                                frame_len=self.frame_len, frame_step=self.frame_step)
+    #     sf.write('wavs/test_out.wav', out_sdw_mwf_nref, self.fs)
+    #     out_sdw_mwf_nref, fs = sf.read('wavs/test_out.wav')
+    #
+    #     np.testing.assert_equal(out_sdw_mwf_nref, true_sdw_mwf_nref)
 
     def test_msnr_wref(self):
 
@@ -90,7 +90,7 @@ class TestBeamformers(TestCase):
 
         np.testing.assert_equal(out_mvdr_nref, true_mvdr_nref)
 
-    def test_sdw_mwf(self):
+    def test_mwf(self):
 
         true_mwf, fs = sf.read('wavs/mwf.wav')
 

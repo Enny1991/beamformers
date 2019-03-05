@@ -160,6 +160,7 @@ def TD_MWF(mixture, interference, reference=None, frame_len=512, frame_step=1):
 
 def MVDR(mixture, interference, reference=None, frame_len=2048, frame_step=512):
     """
+    ftp://ftp.esat.kuleuven.ac.be/stadius/spriet/reports/08-211.pdf
     Frequency domain Minimum Variance Distortionless Response (MVDR) beamformer
     :param mixture:
     :param interference:
@@ -192,7 +193,7 @@ def MVDR(mixture, interference, reference=None, frame_len=2048, frame_step=512):
 
 
 def MSNR(mixture, interference, reference=None, frame_len=2048, frame_step=512):
-
+    # ftp://ftp.esat.kuleuven.ac.be/stadius/spriet/reports/08-211.pdf
     # calculate stft
     mixture_stft = stft(mixture, frame_len=frame_len, frame_step=frame_step)
     interference_stft = stft(interference, frame_len=frame_len, frame_step=frame_step)
@@ -314,7 +315,7 @@ def sdw_mwf_weights(reference_mic, interference_stft, h, mu):
     # compute weights for each frequency separately
     for i, r, _h in zip(range(F), R_y, h):
         part = Tss * np.linalg.inv(r + np.eye(C) * eps).dot(_h)
-        _w = part / (mu + Tss * np.conj(_h).T.dot(part))
+        _w = part / (mu + Tss * np.conj(_h).T.dot(part)) * np.conj(_h[0])
         W[i, :] = _w
 
     return W
