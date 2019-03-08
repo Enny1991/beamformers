@@ -167,7 +167,7 @@ def TD_MWF(mixture, noise, target=None, frame_len=512, frame_step=1):
     return y_MWF
 
 
-def MVDR(mixture, noise, target=None, frame_len=2048, frame_step=512):
+def MVDR(mixture, noise, target=None, frame_len=2048, frame_step=512, ref_mic=0):
     """
     ftp://ftp.esat.kuleuven.ac.be/stadius/spriet/reports/08-211.pdf
     Frequency domain Minimum Variance Distortionless Response (MVDR) beamformer
@@ -196,12 +196,12 @@ def MVDR(mixture, noise, target=None, frame_len=2048, frame_step=512):
     sep_spec = apply_beamforming_weights(mixture_stft, w)
 
     # reconstruct wav
-    recon = istft(sep_spec, frame_len=frame_len, frame_step=frame_step)
+    recon = istft(sep_spec, frame_len=frame_len, frame_step=frame_step, input_len=len(target[ref_mic]))
 
     return recon
 
 
-def MSNR(mixture, noise, target=None, frame_len=2048, frame_step=512):
+def MSNR(mixture, noise, target=None, frame_len=2048, frame_step=512, ref_mic=0):
     """
     Frequency domain Maximum Signal-to-Noise Ratio (MSNR) beamformer, following the formulation in
     ftp://ftp.esat.kuleuven.ac.be/stadius/spriet/reports/08-211.pdf.
@@ -231,7 +231,7 @@ def MSNR(mixture, noise, target=None, frame_len=2048, frame_step=512):
     sep_spec = apply_beamforming_weights(mixture_stft, w)
 
     # reconstruct wav
-    reconstructed = istft(sep_spec, frame_len=frame_len, frame_step=frame_step)
+    reconstructed = istft(sep_spec, frame_len=frame_len, frame_step=frame_step, input_len=len(target[ref_mic]))
 
     return reconstructed
 
@@ -350,7 +350,7 @@ def sdw_mwf_weights(target_mic, noise_stft, h, mu):
     return W
 
 
-def SDW_MWF(mixture, noise, target=None, mu=0, frame_len=2048, frame_step=512):
+def SDW_MWF(mixture, noise, target=None, mu=0, frame_len=2048, frame_step=512, ref_mic=0):
     """
     Speech Distortion Weighted Multi-channel Wiener Filter (SDW_MWF) following the formulation in
     ftp://ftp.esat.kuleuven.ac.be/stadius/spriet/reports/08-211.pdf.
@@ -380,7 +380,7 @@ def SDW_MWF(mixture, noise, target=None, mu=0, frame_len=2048, frame_step=512):
     sep_spec = apply_beamforming_weights(mixture_stft, w)
 
     # reconstruct wav
-    recon = istft(sep_spec, frame_len=frame_len, frame_step=frame_step)
+    recon = istft(sep_spec, frame_len=frame_len, frame_step=frame_step, input_len=len(target[ref_mic]))
 
     # recon = np.concatenate([recon, np.zeros((len(mixture[0]) - len(recon),))])
 
@@ -469,7 +469,7 @@ def MWF_Oracle(mixture, noise, target, frame_len=2048, frame_step=512):
     filtered_stft = np.einsum('abdc,cab->dab', G, mixture_stft)
 
     # invert to time domain
-    reconstructed = istft(filtered_stft, frame_len=frame_len, frame_step=frame_step)[0, :N]
+    reconstructed = istft(filtered_stft, frame_len=frame_len, frame_step=frame_step, input_len=len(target[0]))
 
     return reconstructed
 
