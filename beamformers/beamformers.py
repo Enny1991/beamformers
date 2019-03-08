@@ -436,8 +436,6 @@ def compute_psd(x_stft):
         P += 1. / C * np.real(
             Rj_inv[:, i1, i2][:, None] * Rjj[..., i2, i1]
         )
-    print(P.shape)
-    print(R.shape)
     return P, R
 
 
@@ -466,10 +464,10 @@ def MWF_Oracle(mixture, noise, target, frame_len=2048, frame_step=512):
     G = np.einsum('abcd,abde->abce', cov_target, invCxx)
 
     # separates by (matrix-)multiplying this gain with the mix.
-    filtered_stft = np.einsum('abdc,cab->dab', G, mixture_stft)
+    filtered_stft = np.einsum('abdc,cab->dab', G, mixture_stft)[0]
 
     # invert to time domain
-    reconstructed = istft(filtered_stft, frame_len=frame_len, frame_step=frame_step, input_len=len(target[0]))
+    reconstructed = istft(filtered_stft, frame_len=frame_len, frame_step=frame_step, input_len=N)
 
     return reconstructed
 
