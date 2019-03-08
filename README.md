@@ -10,6 +10,7 @@ For most of the beamformers the only information needed is the microphone record
 it is automatically extracted from the data (see docs for more information on how this works). If available, 
 recordings of the target speech alone will help the estimate of the steering vector providing a cleaner output.
 
+Now with also mask-based beamformers!
 ## Install
 Simply
 ```bash
