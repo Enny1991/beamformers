@@ -52,43 +52,43 @@ class TestBeamformers(TestCase):
     #
     #     np.testing.assert_equal(out_sdw_mwf_nref, true_sdw_mwf_nref)
 
-    def test_msnr_wref(self):
+    # def test_msnr_wref(self):
+    #
+    #     true_msnr_wref, fs = sf.read('wavs/msnr_wref.wav')
+    #
+    #     out_msnr_wref = MSNR(self.mix, self.nn, self.spk, frame_len=self.frame_len, frame_step=self.frame_step)
+    #     sf.write('wavs/test_out.wav', out_msnr_wref, self.fs)
+    #     out_msnr_wref, fs = sf.read('wavs/test_out.wav')
+    #
+    #     np.testing.assert_equal(out_msnr_wref, true_msnr_wref)
+    #
+    # def test_msnr_nref(self):
+    #     true_msnr_nref, fs = sf.read('wavs/msnr_nref.wav')
+    #
+    #     out_msnr_nref = MSNR(self.mix, self.nn, target=None, frame_len=self.frame_len, frame_step=self.frame_step)
+    #     sf.write('wavs/test_out.wav', out_msnr_nref, self.fs)
+    #     out_msnr_nref, fs = sf.read('wavs/test_out.wav')
+    #
+    #     np.testing.assert_equal(out_msnr_nref, true_msnr_nref)
 
-        true_msnr_wref, fs = sf.read('wavs/msnr_wref.wav')
-
-        out_msnr_wref = MSNR(self.mix, self.nn, self.spk, frame_len=self.frame_len, frame_step=self.frame_step)
-        sf.write('wavs/test_out.wav', out_msnr_wref, self.fs)
-        out_msnr_wref, fs = sf.read('wavs/test_out.wav')
-
-        np.testing.assert_equal(out_msnr_wref, true_msnr_wref)
-
-    def test_msnr_nref(self):
-        true_msnr_nref, fs = sf.read('wavs/msnr_nref.wav')
-
-        out_msnr_nref = MSNR(self.mix, self.nn, target=None, frame_len=self.frame_len, frame_step=self.frame_step)
-        sf.write('wavs/test_out.wav', out_msnr_nref, self.fs)
-        out_msnr_nref, fs = sf.read('wavs/test_out.wav')
-
-        np.testing.assert_equal(out_msnr_nref, true_msnr_nref)
-
-    def test_mvdr_wref(self):
-
-        true_mvdr_wref, fs = sf.read('wavs/mvdr_wref.wav')
-
-        out_mvdr_wref = MVDR(self.mix, self.nn, self.spk, frame_len=self.frame_len, frame_step=self.frame_step)
-        sf.write('wavs/test_out.wav', out_mvdr_wref, self.fs)
-        out_mvdr_wref, fs = sf.read('wavs/test_out.wav')
-
-        np.testing.assert_equal(out_mvdr_wref, true_mvdr_wref)
-
-    def test_mvdr_nref(self):
-        true_mvdr_nref, fs = sf.read('wavs/mvdr_nref.wav')
-
-        out_mvdr_nref = MVDR(self.mix, self.nn, target=None, frame_len=self.frame_len, frame_step=self.frame_step)
-        sf.write('wavs/test_out.wav', out_mvdr_nref, self.fs)
-        out_mvdr_nref, fs = sf.read('wavs/test_out.wav')
-
-        np.testing.assert_equal(out_mvdr_nref, true_mvdr_nref)
+    # def test_mvdr_wref(self):
+    #
+    #     true_mvdr_wref, fs = sf.read('wavs/mvdr_wref.wav')
+    #
+    #     out_mvdr_wref = MVDR(self.mix, self.nn, self.spk, frame_len=self.frame_len, frame_step=self.frame_step)
+    #     sf.write('wavs/test_out.wav', out_mvdr_wref, self.fs)
+    #     out_mvdr_wref, fs = sf.read('wavs/test_out.wav')
+    #
+    #     np.testing.assert_equal(out_mvdr_wref, true_mvdr_wref)
+    #
+    # def test_mvdr_nref(self):
+    #     true_mvdr_nref, fs = sf.read('wavs/mvdr_nref.wav')
+    #
+    #     out_mvdr_nref = MVDR(self.mix, self.nn, target=None, frame_len=self.frame_len, frame_step=self.frame_step)
+    #     sf.write('wavs/test_out.wav', out_mvdr_nref, self.fs)
+    #     out_mvdr_nref, fs = sf.read('wavs/test_out.wav')
+    #
+    #     np.testing.assert_equal(out_mvdr_nref, true_mvdr_nref)
 
     def test_mwf(self):
 
