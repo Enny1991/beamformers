@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='beamformers',
-      version='0.2.3',
+      version='0.4.0',
       description='Beamformers for audio source separation and speech enhancement',
       url='https://github.com/Enny1991/beamformers',
       author='Enea Ceolini (UZH Zurich)',

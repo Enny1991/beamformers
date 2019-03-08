@@ -45,7 +45,7 @@ class TestBeamformers(TestCase):
     # def test_sdw_mwf_nref(self):
     #     true_sdw_mwf_nref, fs = sf.read('wavs/sdw_mwf_nref.wav')
     #
-    #     out_sdw_mwf_nref = SDW_MWF(self.mix, self.nn, reference=None,
+    #     out_sdw_mwf_nref = SDW_MWF(self.mix, self.nn, target=None,
     #                                frame_len=self.frame_len, frame_step=self.frame_step)
     #     sf.write('wavs/test_out.wav', out_sdw_mwf_nref, self.fs)
     #     out_sdw_mwf_nref, fs = sf.read('wavs/test_out.wav')
@@ -65,7 +65,7 @@ class TestBeamformers(TestCase):
     def test_msnr_nref(self):
         true_msnr_nref, fs = sf.read('wavs/msnr_nref.wav')
 
-        out_msnr_nref = MSNR(self.mix, self.nn, reference=None, frame_len=self.frame_len, frame_step=self.frame_step)
+        out_msnr_nref = MSNR(self.mix, self.nn, target=None, frame_len=self.frame_len, frame_step=self.frame_step)
         sf.write('wavs/test_out.wav', out_msnr_nref, self.fs)
         out_msnr_nref, fs = sf.read('wavs/test_out.wav')
 
@@ -84,7 +84,7 @@ class TestBeamformers(TestCase):
     def test_mvdr_nref(self):
         true_mvdr_nref, fs = sf.read('wavs/mvdr_nref.wav')
 
-        out_mvdr_nref = MVDR(self.mix, self.nn, reference=None, frame_len=self.frame_len, frame_step=self.frame_step)
+        out_mvdr_nref = MVDR(self.mix, self.nn, target=None, frame_len=self.frame_len, frame_step=self.frame_step)
         sf.write('wavs/test_out.wav', out_mvdr_nref, self.fs)
         out_mvdr_nref, fs = sf.read('wavs/test_out.wav')
 
