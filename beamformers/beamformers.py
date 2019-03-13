@@ -315,7 +315,7 @@ def condition_covariance(x, gamma):
     """see https://stt.msu.edu/users/mauryaas/Ashwini_JPEN.pdf (2.3)"""
     scale = gamma * np.trace(x, axis1=-2, axis2=-1)[..., None, None] / x.shape[-1]
     n = len(x.shape) - 2
-    scaled_eye = np.eye(x.shape[-1])[(None,) * n] * scale
+    scaled_eye = np.eye(x.shape[-1], dtype=x.dtype)[(None,) * n] * scale
     return (x + scaled_eye) / (1 + gamma)
 
 
