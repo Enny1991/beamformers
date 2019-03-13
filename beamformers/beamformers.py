@@ -16,7 +16,7 @@ def stft(x, frame_len=2048, frame_step=512):
 
 
 def istft(x, frame_len=2048, frame_step=512, input_len=None):
-    _reconstructed = _istft(x, noverlap=(frame_len - frame_step))[1]
+    _reconstructed = _istft(x, noverlap=(frame_len - frame_step))[1].astype('float32' if x.dtype == 'complex64' else 'float64')
     if input_len is None:
         return _reconstructed
     else:
@@ -24,7 +24,7 @@ def istft(x, frame_len=2048, frame_step=512, input_len=None):
         if input_len <= rec_len:
             return _reconstructed[:input_len]
         else:
-            return np.append(_reconstructed, np.zeros((input_len - rec_len,)))
+            return np.append(_reconstructed, np.zeros((input_len - rec_len,), dtype=x.dtype))
 
 
 def TD_MVDR(mixture, noise, target=None, frame_len=512, frame_step=1):
@@ -558,11 +558,9 @@ def MB_MVDR_oracle(mixture, noise, target, mask="IBM", frame_len=2048, frame_ste
     mask_target, mask_noise = calculate_masks([target_stft, noise_stft], mask=mask)
 
     w = mb_mvdr_weights(mixture_stft, mask_noise[ref_mic], mask_target[ref_mic], phase_correct=phase_correct)
-
     sep_spec = apply_beamforming_weights(mixture_stft, w)
 
     reconstructed = istft(sep_spec, frame_len=frame_len, frame_step=frame_step, input_len=len(target[ref_mic]))
-
     return reconstructed
 
 
