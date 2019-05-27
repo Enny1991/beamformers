@@ -290,7 +290,6 @@ def estimate_steering_vector(target_stft=None, mixture_stft=None, noise_stft=Non
 
 
 def mvdr_weights(mixture_stft, h):
-    print("new4")
     C, F, T = mixture_stft.shape  # (channels, freq_bins, time)
 
     # covariance matrix
