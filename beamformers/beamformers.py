@@ -699,9 +699,9 @@ def calculate_masks(signals, mask="IBM"):
         masks = [np.prod([np.float32(np.abs(x) > np.abs(signals[y])) for y in list(full_set.difference({j}))], 0) for
                  j, x in enumerate(signals)]
     elif mask == "IRM":
-        masks = [np.abs(x) / np.sum(np.abs(signals), 0) for x in signals]
+        masks = [np.abs(x) / (np.sum(np.abs(signals), 0) + 1e-15) for x in signals]
     elif mask == "WFM":
-        masks = [np.abs(x) ** 2 / np.sum(np.abs(signals) ** 2, 0) for x in signals]
+        masks = [np.abs(x) ** 2 / (np.sum(np.abs(signals) ** 2, 0) + 1e-15) for x in signals]
     elif mask == "PSM":
         masks = [np.cos(np.angle(x) + np.angle(sum(signals))) * np.abs(x) / np.abs(sum(signals)) for x in signals]
     else:
