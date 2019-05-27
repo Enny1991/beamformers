@@ -511,7 +511,7 @@ def mb_mvdr_weights(mixture_stft, mask_noise, mask_target, phase_correct=False):
     cov_noise = get_power_spectral_density_matrix(mixture_stft.transpose(1, 0, 2), mask_noise, normalize=False)
     cov_speech = get_power_spectral_density_matrix(mixture_stft.transpose(1, 0, 2), mask_target, normalize=True)
     cov_noise = condition_covariance(cov_noise, 1e-6)
-    cov_noise /= np.trace(cov_noise, axis1=-2, axis2=-1)[..., None, None]
+    cov_noise /= np.trace(cov_noise, axis1=-2, axis2=-1)[..., None, None] + 1e-15
 
     h = []
     for f in range(F):
@@ -521,7 +521,7 @@ def mb_mvdr_weights(mixture_stft, mask_noise, mask_target, phase_correct=False):
 
             # mask-based MVDR
             _G = solve(_cov_noise, _cov_speech)
-            _lambda = np.trace(_G)
+            _lambda = np.trace(_G) + 1e-15
             h_r = (1. / _lambda) * _G[:, 0]
             h.append(h_r)
 
@@ -609,7 +609,7 @@ def mb_gev_weights(mixture_stft, mask_noise, mask_target, phase_correct=False):
     cov_noise = get_power_spectral_density_matrix(mixture_stft.transpose(1, 0, 2), mask_noise, normalize=False)
     cov_speech = get_power_spectral_density_matrix(mixture_stft.transpose(1, 0, 2), mask_target, normalize=True)
     cov_noise = condition_covariance(cov_noise, 1e-6)
-    cov_noise /= np.trace(cov_noise, axis1=-2, axis2=-1)[..., None, None]
+    cov_noise /= np.trace(cov_noise, axis1=-2, axis2=-1)[..., None, None] + 1e-15
 
     h = []
     for f in range(F):
