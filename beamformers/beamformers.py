@@ -290,13 +290,14 @@ def estimate_steering_vector(target_stft=None, mixture_stft=None, noise_stft=Non
 
 
 def mvdr_weights(mixture_stft, h):
+    print("new4")
     C, F, T = mixture_stft.shape  # (channels, freq_bins, time)
 
     # covariance matrix
 
     R_y = np.einsum('a...c,b...c', mixture_stft, np.conj(mixture_stft)) / T
     R_y = condition_covariance(R_y, 1e-6)
-    R_y /= np.trace(R_y, axis1=-2, axis2=-1)[..., None, None]
+    R_y /= np.trace(R_y, axis1=-2, axis2=-1)[..., None, None] + 1e-15
     # preallocate weights
     W = np.zeros((F, C), dtype='complex64')
 
@@ -336,7 +337,7 @@ def sdw_mwf_weights(target_mic, noise_stft, h, mu):
     # covariance matrix
     R_y = np.einsum('a...c,b...c', noise_stft, np.conj(noise_stft)) / T  # (freq_bins, channels, channels)
     R_y = condition_covariance(R_y, 1e-6)
-    R_y /= np.trace(R_y, axis1=-2, axis2=-1)[..., None, None]
+    R_y /= np.trace(R_y, axis1=-2, axis2=-1)[..., None, None] + 1e-15
 
     # preallocate weights
     W = np.zeros((F, C), dtype='complex64')
@@ -382,8 +383,6 @@ def SDW_MWF(mixture, noise, target=None, mu=0, frame_len=2048, frame_step=512, r
 
     # reconstruct wav
     recon = istft(sep_spec, frame_len=frame_len, frame_step=frame_step, input_len=len(target[ref_mic]))
-
-    # recon = np.concatenate([recon, np.zeros((len(mixture[0]) - len(recon),))])
 
     return recon
 
@@ -623,6 +622,7 @@ def mb_gev_weights(mixture_stft, mask_noise, mask_target, phase_correct=False):
 
         except LinAlgError:  # just a precaution if the solve does not work
             h.append(np.ones((C,)) + 1j * np.ones((C,)))
+            print("error")
 
     w = np.array(h)
     if phase_correct:
