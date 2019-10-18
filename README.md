@@ -10,7 +10,8 @@ For most of the beamformers the only information needed is the microphone record
 it is automatically extracted from the data (see docs for more information on how this works). If available, 
 recordings of the target speech alone will help the estimate of the steering vector providing a cleaner output.
 
-Now with also mask-based beamformers!
+Now with also mask-based beamformers! Some parts of the code have been borrowed from [here](https://github.com/fgnt/nn-gev/blob/master/fgnt/beamforming.py).
+Please refer to the repo and to the [paper](https://ieeexplore.ieee.org/document/7471664) for more information.
 ## Install
 Simply
 ```bash

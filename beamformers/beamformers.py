@@ -45,7 +45,6 @@ def TD_MVDR(mixture, noise, target=None, frame_len=512, frame_step=1):
 
     M, T = mixture.shape  # (n_mics, time)
     n_win = (T - frame_len) // frame_step  # number of windows
-
     R_y = 0.0
     rho_yY = 0.0
     rho_vV = 0.0
@@ -283,7 +282,10 @@ def estimate_steering_vector(target_stft=None, mixture_stft=None, noise_stft=Non
 
     # rescale eigenvectors by eigenvalues for each frequency
     for vec, val in zip(eigen_vec, eigen_val):
-        h.append(vec * val / np.abs(val))
+        if val != 0.0:
+            h.append(vec * val / np.abs(val))
+        else:
+            h.append(np.ones_like(vec))
 
     # return steering vector
     return np.vstack(h)
@@ -312,7 +314,9 @@ def mvdr_weights(mixture_stft, h):
 
 
 def condition_covariance(x, gamma):
-    """see https://stt.msu.edu/users/mauryaas/Ashwini_JPEN.pdf (2.3)"""
+    """Code borrowed from https://github.com/fgnt/nn-gev/blob/master/fgnt/beamforming.py
+    Please refer to the repo and to the paper (https://ieeexplore.ieee.org/document/7471664) for more information.
+    see https://stt.msu.edu/users/mauryaas/Ashwini_JPEN.pdf (2.3)"""
     scale = gamma * np.trace(x, axis1=-2, axis2=-1)[..., None, None] / x.shape[-1]
     n = len(x.shape) - 2
     scaled_eye = np.eye(x.shape[-1], dtype=x.dtype)[(None,) * n] * scale
@@ -381,7 +385,7 @@ def SDW_MWF(mixture, noise, target=None, mu=0, frame_len=2048, frame_step=512, r
     sep_spec = apply_beamforming_weights(mixture_stft, w)
 
     # reconstruct wav
-    recon = istft(sep_spec, frame_len=frame_len, frame_step=frame_step, input_len=len(target[ref_mic]))
+    recon = istft(sep_spec, frame_len=frame_len, frame_step=frame_step, input_len=len(mixture[ref_mic]))
 
     return recon
 
@@ -484,6 +488,7 @@ def BeamformIt(mixture, fs=8000, basedir='/Data/software/BeamformIt/', verbose=F
 
     (output, err) = p.communicate()
     p_status = p.wait()
+    ref_ch = int(str(output).split("Selected channel ")[1].split(' as the reference channel')[0])
     if verbose:
         print("Output: {}".format(output))
         print("Error: {}".format(err))
@@ -491,7 +496,7 @@ def BeamformIt(mixture, fs=8000, basedir='/Data/software/BeamformIt/', verbose=F
 
     s, _ = sf.read('{}/output/temps/temps.wav'.format(basedir))
 
-    return s
+    return s, ref_ch
 
 
 def mb_mvdr_weights(mixture_stft, mask_noise, mask_target, phase_correct=False):
@@ -558,7 +563,7 @@ def MB_MVDR(mixture, noise, target, mask="IBM", frame_len=2048, frame_step=512, 
     w = mb_mvdr_weights(target_stft + noise_stft, mask_noise[ref_mic], mask_target[ref_mic], phase_correct=phase_correct)
     sep_spec = apply_beamforming_weights(mixture_stft, w)
 
-    reconstructed = istft(sep_spec, frame_len=frame_len, frame_step=frame_step, input_len=len(target[ref_mic]))
+    reconstructed = istft(sep_spec, frame_len=frame_len, frame_step=frame_step, input_len=len(mixture[ref_mic]))
     return reconstructed
 
 
@@ -592,6 +597,48 @@ def MB_MVDR_oracle(mixture, noise, target, mask="IBM", frame_len=2048, frame_ste
     return reconstructed
 
 
+def MB_MVDR_cont(mixture, noise, target, mask="IBM", frame_len=2048, frame_step=512, phase_correct=False,
+                 ref_mic=0, frames_per_seg=None, single=True):
+
+    mixture_stft = stft(mixture, frame_len=frame_len, frame_step=frame_step)
+    target_stft = stft(target, frame_len=frame_len, frame_step=frame_step)
+    noise_stft = stft(noise, frame_len=frame_len, frame_step=frame_step)
+
+    invert = []
+
+    if single:
+
+        seg_beg = np.random.randint(mixture_stft.shape[1] - frames_per_seg - 1)
+        noi = noise_stft[:, :, seg_beg:seg_beg + frames_per_seg]
+        tar = target_stft[:, :, seg_beg:seg_beg + frames_per_seg]
+        mix = mixture_stft[:, :, seg_beg:seg_beg + frames_per_seg]
+        mask_target, mask_noise = calculate_masks([tar, noi], mask=mask)
+
+        w = mb_mvdr_weights(mix, mask_noise[ref_mic], mask_target[ref_mic], phase_correct=phase_correct)
+        sep_spec = apply_beamforming_weights(mixture_stft, w)
+
+        reconstructed = istft(sep_spec, frame_len=frame_len, frame_step=frame_step, input_len=len(mixture[ref_mic]))
+        return reconstructed
+
+    else:
+
+        for i in range(mixture_stft.shape[1] // frames_per_seg + 1):
+            tar = target_stft[:, :, i * frames_per_seg: (i + 1) * frames_per_seg]
+            noi = noise_stft[:, :, i * frames_per_seg: (i + 1) * frames_per_seg]
+            mix = mixture_stft[:, :, i * frames_per_seg: (i + 1) * frames_per_seg]
+
+            mask_target, mask_noise = calculate_masks([tar, noi], mask=mask)
+
+            w = mb_mvdr_weights(mix, mask_noise[ref_mic], mask_target[ref_mic], phase_correct=phase_correct)
+
+            sep_spec = apply_beamforming_weights(mix, w)
+            invert.append(sep_spec)
+
+        reconstructed = istft(np.hstack(invert), frame_len=frame_len, frame_step=frame_step,
+                              input_len=len(mixture[ref_mic]))
+        return reconstructed
+
+
 def mb_gev_weights(mixture_stft, mask_noise, mask_target, phase_correct=False):
     """
     Calculates the MB GEV weights in frequency domain
@@ -604,8 +651,8 @@ def mb_gev_weights(mixture_stft, mask_noise, mask_target, phase_correct=False):
     C, F, T = mixture_stft.shape  # (channels, freq_bins, time)
 
     # covariance matrices
-    cov_noise = get_power_spectral_density_matrix(mixture_stft.transpose(1, 0, 2), mask_noise, normalize=False)
-    cov_speech = get_power_spectral_density_matrix(mixture_stft.transpose(1, 0, 2), mask_target, normalize=True)
+    cov_noise = get_power_spectral_density_matrix(mixture_stft.transpose(1, 0, 2), mask_noise, normalize=True)
+    cov_speech = get_power_spectral_density_matrix(mixture_stft.transpose(1, 0, 2), mask_target, normalize=False)
     cov_noise = condition_covariance(cov_noise, 1e-6)
     cov_noise /= np.trace(cov_noise, axis1=-2, axis2=-1)[..., None, None] + 1e-15
 
@@ -710,7 +757,8 @@ def calculate_masks(signals, mask="IBM"):
 
 
 def get_power_spectral_density_matrix(observation, mask=None, normalize=True):
-    """
+    """Code borrowed from https://github.com/fgnt/nn-gev/blob/master/fgnt/beamforming.py
+    Please refer to the repo and to the paper (https://ieeexplore.ieee.org/document/7471664) for more information.
     Calculates the weighted power spectral density matrix.
     This does not yet work with more than one target mask.
     :param normalize: wheter or not normalize the psd
@@ -734,7 +782,9 @@ def get_power_spectral_density_matrix(observation, mask=None, normalize=True):
 
 
 def phase_correction(vector):
-    """Phase correction to reduce distortions due to phase inconsistencies.
+    """Code borrowed from https://github.com/fgnt/nn-gev/blob/master/fgnt/beamforming.py
+    Please refer to the repo and to the paper (https://ieeexplore.ieee.org/document/7471664) for more information.
+    Phase correction to reduce distortions due to phase inconsistencies.
     Args:
         vector: Beamforming vector with shape (..., bins, sensors).
     Returns: Phase corrected beamforming vectors. Lengths remain.
