@@ -195,7 +195,7 @@ def MVDR(mixture, noise, target=None, frame_len=2048, frame_step=512, ref_mic=0)
     sep_spec = apply_beamforming_weights(mixture_stft, w)
 
     # reconstruct wav
-    recon = istft(sep_spec, frame_len=frame_len, frame_step=frame_step, input_len=len(target[ref_mic]))
+    recon = istft(sep_spec, frame_len=frame_len, frame_step=frame_step, input_len=len(mixture[ref_mic]))
 
     return recon
 
@@ -230,7 +230,7 @@ def MSNR(mixture, noise, target=None, frame_len=2048, frame_step=512, ref_mic=0)
     sep_spec = apply_beamforming_weights(mixture_stft, w)
 
     # reconstruct wav
-    reconstructed = istft(sep_spec, frame_len=frame_len, frame_step=frame_step, input_len=len(target[ref_mic]))
+    reconstructed = istft(sep_spec, frame_len=frame_len, frame_step=frame_step, input_len=len(mixture[ref_mic]))
 
     return reconstructed
 
